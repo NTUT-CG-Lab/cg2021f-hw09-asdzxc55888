@@ -68,17 +68,39 @@ class threejsViewer {
             this.camera.aspect = width / height
             this.camera.updateProjectionMatrix();
         })
-        this.loadData = (paddingData, size, isovalue) => {
+
+        this.loadData = () => {
             let mesh = new MarchingCubes(size);
             mesh.material = new THREE.MeshPhongMaterial();
-            mesh.isolation = isovalue;
-            mesh.field = paddingData;
+            mesh.isolation = this.threshold;
+            mesh.field = this.databuffer;
 
             this.scene.add(mesh);
         }
 
+        this.updateModel = () => {
+            console.log(this.databuffer)
+            let mesh = this.scene.getObjectByName('mesh');
+            if (mesh == null) {
+                mesh = new MarchingCubes(this.size);
+                mesh.name = 'mesh'
+                // mesh.material = this.textureOption ? new THREE.MeshPhongMaterial() : new THREE.MeshBasicMaterial();
+                mesh.material = this.textureOption == 0 ? new THREE.MeshPhongMaterial() : new THREE.MeshToonMaterial();
+                mesh.isolation = this.threshold;
+                mesh.field = this.databuffer;
+                this.scene.add(mesh);
+                return mesh
+            } else {
+                mesh.material = this.textureOption == 0 ? new THREE.MeshPhongMaterial() : new THREE.MeshToonMaterial();
+                mesh.isolation = this.threshold;
+                mesh.field = this.databuffer;
+            }
+        }
+
         this.download = () => {
+            let mesh = this.scene.getObjectByName('mesh');
             mesh.generateGeometry();
+            return mesh
         }
 
         this.renderScene()

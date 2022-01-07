@@ -132,8 +132,8 @@
 
             <!--閥值-->
             <div class="labelLayout">
-                <label for="isovalueSlider">閥值:0/0</label>
-                <input class="labelInput" id="isovalueSlider" type="range" name="settingForm" min=0 max=1000>
+                <label for="isovalueSlider" id="isovalueSliderLabel">閥值:0/255</label>
+                <input class="labelInput" id="isovalueSlider" type="range" name="settingForm" min=0 max=255>
             </div>
 
             <!--紋理-->
@@ -173,9 +173,9 @@
             //addChild 要比 renderModal 先呼叫
             so.addChild("讀取文件並顯示資訊", 4, true);
             so.addChild("生成模型", 2, true);
-            so.addChild("閥值控制", 1, false);
+            so.addChild("閥值控制", 1, true);
             so.addChild("文件下載", 1, false);
-            so.addChild("材質更換", 2, false);
+            so.addChild("材質更換", 2, true);
 
             //產生自評表，參數如下所示
             so.renderModal(
@@ -232,7 +232,7 @@
             let depth = fileInfo[3];
             let byte = fileInfo[4];
 
-             alert(`width:${width}\nheight:${height}\ndepth:${depth}\nbyte:${byte}`);
+            alert(`width:${width}\nheight:${height}\ndepth:${depth}\nbyte:${byte}`);
 
             let data = null;
             let paddingData = null;
@@ -245,8 +245,13 @@
                     data = new Uint8Array(result);
 
                     paddingData = new Uint8Array(Math.pow(max, 3));
-                    console.log(Math.max(data))
-                    modelView.loadData(data, max, 200)
+                    // console.log(Math.max(data))
+                    // modelView.loadData(data, max, 200)
+                    modelView.databuffer = data;
+                    modelView.size = max;
+                    modelView.threshold = 75
+                    modelView.updateModel();
+                    document.getElementById('isovalueSliderLabel').innerText = `閥值:${modelView.threshold}/255`
                 }
             }
 
@@ -281,18 +286,32 @@
 
             // 模型資料下載
             elements[1].addEventListener('click', (evt) => {
+                let exporter = new STLLoader();
+                let mesh = modelView.download();
 
+                let result = exporter.parse(mesh, { binary: true });
+                let blob = new Blob([result], { type: 'application/octet-stream' })
+
+                let dlLint = document.createElement('a');
+                dlLink.href = URL.createObjectURL(blob);
+                dlLinl.download = 'mode.st1'
+
+                dlLink.click();
             })
 
             // 閥值設定
             elements[2].addEventListener('click', (evt) => {
-                console.log(evt)
+                let isovalue = evt.srcElement.value;
+                document.getElementById('isovalueSliderLabel').innerText = `閥值:${isovalue}/255`
+                modelView.threshold = isovalue;
+                modelView.updateModel();
             })
 
-            // 紋理設置
+            // 紋理設置 
             elements[3].addEventListener('change', (evt) => {
                 let selectedValue = evt.target.value;
-                
+                modelView.textureOption = selectedValue
+                modelView.updateModel();
             })
 
             // 模型網格顯示
