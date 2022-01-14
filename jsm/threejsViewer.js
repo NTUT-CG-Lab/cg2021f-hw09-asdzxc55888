@@ -99,8 +99,8 @@ class threejsViewer {
 
         this.download = () => {
             let mesh = this.scene.getObjectByName('mesh');
-            mesh.generateGeometry();
-            return mesh
+            let geometry = mesh.generateGeometry();
+            return new THREE.Mesh(geometry)
         }
 
         this.renderScene()

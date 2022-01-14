@@ -174,7 +174,7 @@
             so.addChild("讀取文件並顯示資訊", 4, true);
             so.addChild("生成模型", 2, true);
             so.addChild("閥值控制", 1, true);
-            so.addChild("文件下載", 1, false);
+            so.addChild("文件下載", 1, true);
             so.addChild("材質更換", 2, true);
 
             //產生自評表，參數如下所示
@@ -288,13 +288,17 @@
             elements[1].addEventListener('click', (evt) => {
                 let exporter = new STLLoader();
                 let mesh = modelView.download();
+                console.log(mesh)
 
-                let result = exporter.parse(mesh, { binary: true });
-                let blob = new Blob([result], { type: 'application/octet-stream' })
+                let result = exporter.parse(mesh, { binary: false });
+                //let blob = new Blob([result], { type: 'application/octet-stream' })
+                let blob = new Blob([result], { type: 'text/plain' })
+
+
 
                 let dlLint = document.createElement('a');
                 dlLink.href = URL.createObjectURL(blob);
-                dlLinl.download = 'mode.st1'
+                dlLinl.download = 'mode.stl'
 
                 dlLink.click();
             })
